@@ -37,7 +37,7 @@ public class FixedGameLoop extends GameLoop {
 
             //Do as many game updates as we need to, potentially playing catchup.
             while (now - lastUpdateTime > TIME_BETWEEN_UPDATES && updateCount < MAX_UPDATES_BEFORE_RENDER) {
-                updateGame();
+                Platform.runLater(() -> updateGame());
                 lastUpdateTime += TIME_BETWEEN_UPDATES;
                 updateCount++;
             }
@@ -50,7 +50,7 @@ public class FixedGameLoop extends GameLoop {
 
             //Render. To do so, we need to calculate interpolation for a smooth render.
             float interpolation = Math.min(1.0f, (float) ((now - lastUpdateTime) / TIME_BETWEEN_UPDATES));
-            drawGame(interpolation);
+            Platform.runLater(() -> drawGame(interpolation));
             frameCount++;
             lastRenderTime = now;
 

@@ -1,5 +1,6 @@
 package com.harrydrummond.asteroids.controller;
 
+import com.harrydrummond.asteroids.sprites.Bullet;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
@@ -43,7 +44,10 @@ public final class KeyController {
                     gameController.getPlayerSprite().rotateRight();
                     break;
                 case SPACE:
-                    gameController.addSprite(gameController.getPlayerSprite().fire());
+                    Bullet bullet = gameController.getPlayerSprite().fire();
+                    if (bullet != null) {
+                        gameController.addSprite(bullet);
+                    }
                     break;
                 default:
             }

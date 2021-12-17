@@ -1,28 +1,34 @@
 package com.harrydrummond.asteroids.controller;
 
-import com.harrydrummond.asteroids.sprites.PlayerSprite;
-import com.harrydrummond.asteroids.sprites.Sprite;
-import javafx.geometry.Point2D;
+import com.harrydrummond.asteroids.geometry.Point2D;
+import com.harrydrummond.asteroids.sprites.*;
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GameController {
 
     private final KeyController keyController;
 
     private float interpolation = 0f;
-    private final List<Sprite> elements = new ArrayList<>();
+    private final List<Sprite> elements = Collections.synchronizedList(new ArrayList<>());
     private final Pane pane;
     private final PlayerSprite playerSprite;
 
     public GameController(Pane pane) {
         this.pane = pane;
         this.playerSprite = new PlayerSprite();
-        playerSprite.setBounds(new Point2D(0,0), new Point2D(500,500));
+        //playerSprite.setBounds(new BoundingBox(0,0,500,500));
         elements.add(playerSprite);
+
+        Asteroid asteroid = new Asteroid();
+        asteroid.setSpeed(new Point2D(3, 2));
+
+        elements.add(asteroid);
         // Requests pane to be "clicked" so it's active.
         pane.requestFocus();
 
@@ -32,7 +38,7 @@ public class GameController {
         pane.setOnKeyReleased(keyController::handleReleased);
     }
 
-    public void addSprite(Sprite sprite) {
+    public synchronized void addSprite(Sprite sprite) {
         elements.add(sprite);
     }
 
@@ -40,18 +46,29 @@ public class GameController {
         return playerSprite;
     }
 
-    public void update() {
+    public synchronized void update() {
         this.keyController.handleActiveKeys();
-        elements.removeIf(el -> !el.isActive());
-        for (Sprite element : elements) {
-            element.move();
-            element.update();
+        synchronized (elements) {
+            elements.removeIf(el -> !el.isActive());
+            for (Sprite element : elements) {
+                element.move();
+                element.update();
+
+                for (Sprite sprite : elements) {
+                    boolean intersects = sprite.intersects(element);
+                    if (!intersects) continue;
+                }
+            }
         }
     }
 
     public void render() {
         pane.getChildren().clear();
-        pane.getChildren().addAll(elements.stream().map(Sprite::getNode).collect(Collectors.toList()));
+        synchronized (elements) {
+            for (Sprite element : elements) {
+                element.draw(pane);
+            }
+        }
     }
 
     public void setInterpolation(float interpolation) {

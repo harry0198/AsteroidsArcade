@@ -1,41 +1,23 @@
 package com.harrydrummond.asteroids.sprites;
 
+import com.harrydrummond.asteroids.geometry.Point2D;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 
-public class Bullet extends LineBasedSprite {
+public class Bullet extends PolyBasedSprite {
 
-    private boolean active = true;
-
-    public Bullet(double x, double y) {
-        super();
-        this.xPos = x;
-        this.yPos = y;
-        update();
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    public Bullet(Point2D pos) {
+        super(new Point2D(0,0), new Point2D(1,0));
+        this.pos = pos;
+        shape.setStroke(Color.WHITE);
+        shape.setStrokeWidth(2);
     }
 
     @Override
-    public void moveTo(double x, double y) {
-        if (!isWithinBounds(x,y)) {
+    public void moveTo(Point2D point) {
+        if (!isWithinBounds(point)) {
             setActive(false);
             return;
         }
-        super.moveTo(x, y);
-    }
-
-    @Override
-    public void update() {
-        shape = new Line(xPos,yPos,xPos,yPos);
-        shape.setStroke(Color.WHITE);
-        shape.setStrokeWidth(2);
-        shape.setRotate(rotation);
+        super.moveTo(point);
     }
 }
