@@ -1,13 +1,14 @@
 package com.harrydrummond.asteroids.controller;
 
+import com.harrydrummond.asteroids.components.Collidable;
+import com.harrydrummond.asteroids.controller.keycontrollers.KeyController;
+import com.harrydrummond.asteroids.controller.keycontrollers.PlayerKeyController;
 import com.harrydrummond.asteroids.geometry.Point2D;
 import com.harrydrummond.asteroids.sprites.*;
-import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 public class GameController {
@@ -22,6 +23,7 @@ public class GameController {
     public GameController(Pane pane) {
         this.pane = pane;
         this.playerSprite = new PlayerSprite();
+        this.playerSprite.moveTo(new Point2D(250,250));
         //playerSprite.setBounds(new BoundingBox(0,0,500,500));
         elements.add(playerSprite);
 
@@ -33,7 +35,7 @@ public class GameController {
         pane.requestFocus();
 
         // Delegates key controls to keycontroller
-        this.keyController = new KeyController(this);
+        this.keyController = new PlayerKeyController(this);
         pane.setOnKeyPressed(keyController::handlePressed);
         pane.setOnKeyReleased(keyController::handleReleased);
     }
@@ -49,17 +51,36 @@ public class GameController {
     public synchronized void update() {
         this.keyController.handleActiveKeys();
         synchronized (elements) {
+            List<Sprite> toAdd = new ArrayList<>();
             elements.removeIf(el -> !el.isActive());
             for (Sprite element : elements) {
                 element.move();
                 element.update();
 
+                if (!element.isVisible()) continue;
+
                 for (Sprite sprite : elements) {
+                    if (!(sprite instanceof Collidable)) continue;
                     boolean intersects = sprite.intersects(element);
                     if (!intersects) continue;
+
+                    if (sprite instanceof PlayerSprite && element instanceof Asteroid) {
+                        PlayerSprite playerSprite = (PlayerSprite) sprite;
+                        playerSprite.destroy();
+                        toAdd.addAll(playerSprite.playDestroyAnimation());
+                    } else if (sprite instanceof Bullet && element instanceof Asteroid) {
+                        Asteroid asteroid = (Asteroid) element;
+                        asteroid.destroy();
+                        Bullet bullet = (Bullet) sprite;
+                        bullet.destroy();
+                        toAdd.addAll(asteroid.playDestroyAnimation());
+                    }
                 }
             }
+            elements.addAll(toAdd);
         }
+
+
     }
 
     public void render() {

@@ -6,7 +6,6 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
-import java.awt.*;
 import java.awt.geom.Area;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +17,7 @@ public abstract class Sprite {
     protected Bounds bounds;
     protected Point2D pos;
     protected int rotation;
+    private boolean visible = true;
     // Velocity vector
     protected Point2D dPos;
     protected boolean active = true;
@@ -30,6 +30,13 @@ public abstract class Sprite {
         bounds = new BoundingBox(0,0,500,500);
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
     /**
      * Gets the points of the sprite relative to x,y = 0,0
      * @return Points of sprite relative to x,y = 0,0
@@ -51,9 +58,11 @@ public abstract class Sprite {
     }
 
     public Area getArea() {
+        int factor = 100;
         java.awt.Polygon polygon = new java.awt.Polygon(
-                getAbsolutePoints().stream().mapToInt(x -> (int) x.getX()).toArray(),
-                getAbsolutePoints().stream().mapToInt(x -> (int) x.getY()).toArray(),
+                /* Multiplied by factor to get decimal accuracy */
+                getAbsolutePoints().stream().mapToInt(x -> (int) x.getX() * factor).toArray(),
+                getAbsolutePoints().stream().mapToInt(x -> (int) x.getY() * factor).toArray(),
                 points.size());
         return new Area(polygon);
     }
@@ -140,6 +149,10 @@ public abstract class Sprite {
     public void rotateRight() {
         rotation += 5;
         update();
+    }
+
+    public void setRotation(int rotation) {
+        this.rotation = rotation;
     }
 
     public void setSpeed(Point2D dPos) {

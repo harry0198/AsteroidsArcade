@@ -1,10 +1,14 @@
 package com.harrydrummond.asteroids.sprites;
 
 
+import com.harrydrummond.asteroids.components.Collidable;
+import com.harrydrummond.asteroids.components.Destroyable;
 import com.harrydrummond.asteroids.geometry.Point2D;
 import javafx.scene.paint.Color;
 
-public class Asteroid extends PolyBasedSprite {
+import java.util.List;
+
+public class Asteroid extends PolyBasedSprite implements Destroyable, Collidable {
 
     public Asteroid() {
         super(
@@ -23,5 +27,15 @@ public class Asteroid extends PolyBasedSprite {
         shape.setStrokeWidth(2);
         shape.setStroke(Color.WHITE);
         setScale(10);
+    }
+
+    @Override
+    public void destroy() {
+        setActive(false);
+    }
+
+    @Override
+    public List<Sprite> playDestroyAnimation() {
+        return List.of();
     }
 }

@@ -1,4 +1,6 @@
-package com.harrydrummond.asteroids.sprites;
+package com.harrydrummond.asteroids.components;
+
+import com.harrydrummond.asteroids.sprites.Bullet;
 
 public interface Fireable {
 

@@ -1,20 +1,22 @@
-package com.harrydrummond.asteroids.controller;
+package com.harrydrummond.asteroids.controller.keycontrollers;
 
+import com.harrydrummond.asteroids.controller.GameController;
+import com.harrydrummond.asteroids.controller.GameInfo;
+import com.harrydrummond.asteroids.geometry.Point2D;
 import com.harrydrummond.asteroids.sprites.Bullet;
+import com.harrydrummond.asteroids.sprites.PlayerSprite;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
-public final class KeyController {
+public class PlayerKeyController extends KeyController {
 
-    private final GameController gameController;
     private final List<KeyCode> keyCodes = Collections.synchronizedList(new ArrayList<>());
+    private boolean playerIsInHyperSpace = false;
 
-    public KeyController(final GameController gameController) {
-        this.gameController = gameController;
+    public PlayerKeyController(final GameController gameController) {
+        super(gameController);
     }
 
     public synchronized void handlePressed(KeyEvent keyEvent) {
@@ -32,6 +34,7 @@ public final class KeyController {
     }
 
     public synchronized void handleActiveKeys() {
+        GameController gameController = getGameController();
         for (KeyCode keyCode : keyCodes) {
             switch (keyCode) {
                 case UP:
@@ -49,6 +52,23 @@ public final class KeyController {
                         gameController.addSprite(bullet);
                     }
                     break;
+                case ENTER:
+                    if (playerIsInHyperSpace) break;
+                    playerIsInHyperSpace = true;
+                    Random random = new Random();
+                    PlayerSprite playerSprite = gameController.getPlayerSprite();
+                    playerSprite.setVisible(false);
+                    gameController.getPlayerSprite().moveTo(new Point2D(random.nextInt(GameInfo.WINDOW_WIDTH), random.nextInt(GameInfo.WINDOW_HEIGHT)));
+                    //TODO delegate?
+                    TimerTask task = new TimerTask() {
+                        @Override
+                        public void run() {
+                            playerIsInHyperSpace = false;
+                            playerSprite.setVisible(true);
+                        }
+                    };
+                    Timer timer = new Timer();
+                    timer.schedule(task, 500);
                 default:
             }
         }

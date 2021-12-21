@@ -6,11 +6,8 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
-import java.awt.geom.Area;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public abstract class PolyBasedSprite extends Sprite {
 
@@ -51,7 +48,7 @@ public abstract class PolyBasedSprite extends Sprite {
 
     @Override
     public void draw(Pane pane) {
-        pane.getChildren().add(getNode());
+        if (isVisible()) pane.getChildren().add(getNode());
     }
 
     @Override
